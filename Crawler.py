@@ -5,7 +5,7 @@ import urllib
 import uuid
 
 
-class Crawler():
+class TedCrawler():
 
     def __init__(self):
         self.url_list = []
@@ -75,5 +75,5 @@ class Crawler():
 
 
 if __name__ == '__main__':
-    c = Crawler()
+    c = TedCrawler()
     c.crawl_ted_videos()
