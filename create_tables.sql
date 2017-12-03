@@ -38,17 +38,17 @@ CREATE TABLE Documents (
     url varchar(1024)
 );
 
-CREATE TABLE Parent-Child (
+CREATE TABLE ParentChild (
     pid varchar(255),
     cid varchar(255)
 );
 
-CREATE TABLE Parent-Title (
+CREATE TABLE ParentTitle (
     pid varchar(255),
     title varchar(1024)
 );
 
-CREATE TABLE Child-Type (
+CREATE TABLE ChildType (
     cid varchar(255),
     type varchar(255)
 );
