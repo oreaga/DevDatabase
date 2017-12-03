@@ -12,9 +12,9 @@ class TedCrawler():
 
     def build_ted_insert(self, attrs, type):
         if type == 'video':
-            insert = 'INSERT INTO Videos (guid, runningTime, format, author, dateModified, description, url) VALUES (' + str(uuid.uuid4()) + ',' + attrs['length'] + ',' + attrs['format'] + ',"' + attrs['author'] + '",' + attrs['date'] + ',"' + attrs['title'] + '",' + attrs['url'] + ');'
+            insert = 'INSERT INTO Videos (guid, runningTime, format, author, dateModified, description, url) VALUES ("' + str(uuid.uuid4()) + '",' + attrs['length'] + ',"' + attrs['format'] + '","' + attrs['author'] + '",' + attrs['date'] + ',"' + attrs['title'] + '","' + attrs['url'] + '");'
         else:
-            insert = 'INSERT INTO Images (guid, imageWidth, imageHeight, format, author, dateModified, description, url) VALUES (' + str(uuid.uuid4()) + ',' + attrs['imageWidth'] + ',' + attrs['imageHeight'] + ',' + attrs['format'] + ',"' + attrs['author'] + '",' + attrs['date'] + ',"' + attrs['title'] + '",' + attrs['url'] + ');'
+            insert = 'INSERT INTO Images (guid, imageWidth, imageHeight, format, author, dateModified, description, url) VALUES ("' + str(uuid.uuid4()) + '",' + attrs['imageWidth'] + ',' + attrs['imageHeight'] + ',"' + attrs['format'] + '","' + attrs['author'] + '",' + attrs['date'] + ',"' + attrs['title'] + '","' + attrs['url'] + '");'
 
         return insert
 
@@ -54,7 +54,6 @@ class TedCrawler():
                 inserts += video_insert + '\n'
 
             for img in outer.find_all('img', class_='thumb__image'):
-                print img
                 attrs['url'] = img['src']
                 fields = attrs['url'].split('.')
                 attrs['format'] = fields[-1].split('?')[0]
@@ -62,7 +61,6 @@ class TedCrawler():
                 attrs['imageWidth'] = res.split('x')[0]
                 attrs['imageHeight'] = res.split('x')[1]
                 image_insert = self.build_ted_insert(attrs, 'image')
-                print image_insert
                 inserts += image_insert + '\n'
 
         with open('ted_inserts.sql', 'a+') as fl:
@@ -89,6 +87,11 @@ class TedCrawler():
             print 'Getting info for page ' + str(i)
             self.crawl_ted_page(('page=' + str(i) + '&').join(url_base))
 
+
+class TechCrunchCrawler():
+
+    def __init__(self):
+        self.base_url = 'https://techcrunch.com/'
 
 
 
