@@ -15,7 +15,7 @@ class TedCrawler():
             insert = 'INSERT INTO Videos (guid, runningTime, format, author, dateModified, description, url) VALUES ("' + str(uuid.uuid4()) + '",' + attrs['length'] + ',"' + attrs['format'] + '","' + attrs['author'] + '",' + attrs['date'] + ',"' + attrs['title'] + '","' + attrs['url'] + '");'
         else:
             insert = 'INSERT INTO Images (guid, imageWidth, imageHeight, format, author, dateModified, description, url) VALUES ("' + str(uuid.uuid4()) + '",' + attrs['imageWidth'] + ',' + attrs['imageHeight'] + ',"' + attrs['format'] + '","' + attrs['author'] + '",' + attrs['date'] + ',"' + attrs['title'] + '","' + attrs['url'] + '");'
-
+        print insert
         return insert
 
     def get_secs(self, length):
