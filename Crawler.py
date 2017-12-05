@@ -257,8 +257,8 @@ class FileCrawler:
             for d in dirnames:
                 attrs['cid'] = str(uuid.uuid4())
                 attrs['type'] = 'Directory'
-                inserts += build_insert(attrs, 'parentchild')
-                inserts += build_insert(attrs, 'childtype')
+                inserts += build_insert(attrs, 'parentchild') + '\n'
+                inserts += build_insert(attrs, 'childtype') + '\n'
 
         with open('local_inserts.sql', 'a+') as fl:
             fl.write()
