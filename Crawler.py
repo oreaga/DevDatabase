@@ -222,8 +222,7 @@ class FileCrawler:
             attrs['url'] = dirpath
             attrs['pid'] = str(uuid.uuid4())
             attrs['title'] = dirpath.split('/')[-1]
-            inserts += build_insert(attrs, 'parenttitle')
-            print dirpath
+            inserts += build_insert(attrs, 'parenttitle') + '\n'
             for f in dirfiles:
                 print f
                 attrs['guid'] = str(uuid.uuid4())
@@ -236,24 +235,33 @@ class FileCrawler:
                     attrs['cid'] = attrs['guid']
                     if attrs['format'] in doc_types:
                         attrs['type'] = 'Document'
-                        inserts += build_insert(attrs, 'document')
-                        inserts += build_insert(attrs, 'parentchild')
-                        inserts += build_insert(attrs, 'childtype')
+                        inserts += build_insert(attrs, 'document') + '\n'
+                        inserts += build_insert(attrs, 'parentchild') + '\n'
+                        inserts += build_insert(attrs, 'childtype') + '\n'
                     elif attrs['format'] in image_types:
                         attrs['type'] = 'Image'
-                        inserts += build_insert(attrs, 'image')
-                        inserts += build_insert(attrs, 'parentchild')
-                        inserts += build_insert(attrs, 'childtype')
+                        inserts += build_insert(attrs, 'image') + '\n'
+                        inserts += build_insert(attrs, 'parentchild') + '\n'
+                        inserts += build_insert(attrs, 'childtype') + '\n'
                     elif attrs['format'] in video_types:
                         attrs['type'] = 'Video'
-                        inserts += build_insert(attrs, 'video')
-                        inserts += build_insert(attrs, 'parentchild')
-                        inserts += build_insert(attrs, 'childtype')
+                        inserts += build_insert(attrs, 'video') + '\n'
+                        inserts += build_insert(attrs, 'parentchild') + '\n'
+                        inserts += build_insert(attrs, 'childtype') + '\n'
                     elif attrs['format'] in audio_types:
                         attrs['type'] = 'Audio'
-                        inserts += build_insert(attrs, 'audio')
-                        inserts += build_insert(attrs, 'parentchild')
-                        inserts += build_insert(attrs, 'childtype')
+                        inserts += build_insert(attrs, 'audio') + '\n'
+                        inserts += build_insert(attrs, 'parentchild') + '\n'
+                        inserts += build_insert(attrs, 'childtype') + '\n'
+
+            for d in dirnames:
+                attrs['cid'] = str(uuid.uuid4())
+                attrs['type'] = 'Directory'
+                inserts += build_insert(attrs, 'parentchild')
+                inserts += build_insert(attrs, 'childtype')
+
+        with open('local_inserts.sql', 'a+') as fl:
+            fl.write()
 
 
 
