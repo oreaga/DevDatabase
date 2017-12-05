@@ -1,0 +1,241 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+use IEEE.numeric_std.all;
+
+-- if the port address comes in second time... drop the second
+	entity ram_design is
+    port(
+		p0ind : in std_logic_vector(7 downto 0);
+	     p0inv : in std_logic;
+		p0outd : out std_logic_vector(7 downto 0);
+		p0outv : out std_logic;
+		p1ind : in std_logic_vector(7 downto 0);
+	     p1inv : in std_logic;
+		p1outd : out std_logic_vector(7 downto 0);
+		p1outv : out std_logic;
+		p2ind : in std_logic_vector(7 downto 0);
+	     p2inv : in std_logic;
+		p2outd : out std_logic_vector(7 downto 0);
+		p2outv : out std_logic;
+		p3ind : in std_logic_vector(7 downto 0);
+	     p3inv : in std_logic;
+		p3outd : out std_logic_vector(7 downto 0);
+		p3outv : out std_logic;
+		hit : out std_logic
+    );
+end ram_design;
+
+architecture Behavioral of ram_design is
+   type Ram is array (255 downto 0) of std_logic_vector(15 downto 0);
+     signal Ram1 : Ram;
+     signal Ram2 : Ram;
+     signal tempRam1 : std_logic_vector(15 downto 0);
+     signal tempRam2 : std_logic_vector(15 downto 0);
+     signal tempsrc1 : std_logic_vector(7 downto 0);
+     signal tempsrc2 : std_logic_vector(7 downto 0);
+     type portRam is array (15 downto 0) of std_logic_vector(15 downto 0); --concatenate the tempsrc1 & tempsrc2 bits to store address in portRam array...
+     signal portIndex : std_logic_vector(15 downto 0);
+	signal MacAddr : std_logic_vector(47 downto 0);
+begin
+
+    process(Clk)
+    begin
+
+        	if (Clk'event and Clk='1') then
+            	if p0inv = '1' then
+        			MacAddr(7 downto 0)   <= p0ind;
+					MacAddr(15 downto 8)  <= MacAddr(7 downto 0);
+					MacAddr(23 downto 16) <= MacAddr(15 downto 8);
+					MacAddr(31 downto 24) <= MacAddr(23 downto 16);
+            		MacAddr( 39 downto 32) <= MacAddr(31 downto 24);
+            		MacAddr( 47 downto 40) <= MacAddr(39 downto 32);
+
+
+            		tempsrc1 <= MacAddr( 23 downto 16);
+            		tempsrc2 <= MacAddr( 31 downto 24);
+
+            			if Ram1(tempsrc1(0)) = "0" then
+            				tempRam1(0) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(0);
+                    	elsif Ram1(tempsrc1(4)) = "0" then
+                    		tempRam1(4) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(4);
+                		elsif Ram1(tempsrc1(8)) = "0" then
+                			tempRam1(8) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(8);
+                        elsif Ram1(tempsrc1(12)) = "0" then
+                        	tempRam1(12) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(12);
+             			else
+                        	Ram1(tempsrc1(0)) = "0" and Ram1(tempsrc1(4)) = "0" and Ram1(tempsrc1(8)) = "0" and Ram1(tempsrc1(12)) = "0";
+                        end if;
+                        if Ram2(tempsrc2(0)) = "0" then
+                        	tempRam2(0) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(0);
+                    	elsif Ram2(tempsrc2(4)) = "0" then
+                    		tempRam2(4) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(4);
+                		elsif Ram2(tempsrc2(8)) = "0" then
+            				tempRam2(8) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(8);
+                        elsif Ram2(tempsrc2(12)) = "0" then
+            				tempRam2(12) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(12);
+            			else
+            				Ram2(tempsrc2(0)) = "0" and Ram2(tempsrc2(4)) = "0" and Ram2(tempsrc2(8)) = "0" and Ram2(tempsrc2(12)) = "0";
+             			end if;
+
+                    	-- port lookup table
+                    		portIndex <= Ram1(tempsrc1) and Ram2(tempsrc2); -- gives port number
+                    		portRam(to_integer(unsigned(portIndex))) <= tempsrc1 & tempsrc2; -- concat the  src addresses to store in the port index value
+
+                end if
+
+             	if p1inv = '1' then
+        			MacAddr(7 downto 0)   <= p1ind;
+					MacAddr(15 downto 8)  <= MacAddr(7 downto 0);
+					MacAddr(23 downto 16) <= MacAddr(15 downto 8);
+					MacAddr(31 downto 24) <= MacAddr(23 downto 16);
+            		MacAddr( 39 downto 32) <= MacAddr(31 downto 24);
+            		MacAddr( 47 downto 40) <= MacAddr(39 downto 32);
+
+
+            		tempsrc1 <= MacAddr( 23 downto 16);
+            		tempsrc2 <= MacAddr( 31 downto 24);
+
+            			if Ram1(tempsrc1(1)) = "0" then
+            				tempRam1(1) <="1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(1);
+                    	elsif Ram1(tempsrc1(5)) = "0" then
+            				tempRam1(5) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(5);
+                		elsif Ram1(tempsrc1(9)) = "0" then
+            				tempRam1(9) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(9);
+            			elsif Ram1(tempsrc1(13)) = "0" then
+            				tempRam1(13) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(13);
+             			else
+                        	Ram1(tempsrc1(1)) = "0" and Ram1(tempsrc1(5)) = "0" and Ram1(tempsrc1(9)) = "0" and Ram1(tempsrc1(13)) = "0";
+                        end if;
+                        if Ram2(tempsrc2(1)) = "0" then
+            				tempRam2(1) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(1);
+                    	elsif Ram2(tempsrc2(5)) = "0" then
+            				tempRam2(5) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(5);
+                		elsif Ram2(tempsrc2(9)) = "0" then
+            				tempRam2(9) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(9);
+            			elsif Ram2(tempsrc2(13)) = "0" then
+            				tempRam2(13) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(13);
+            			else
+            				Ram2(tempsrc2(1)) = "0" and Ram2(tempsrc2(5)) = "0" and Ram2(tempsrc2(9)) = "0" and Ram2(tempsrc2(13)) = "0";
+             			end if;
+
+             			portIndex <= Ram1(tempsrc1) and Ram2(tempsrc2); -- gives port number
+                    	portRam(to_integer(unsigned(portIndex))) <= tempsrc1 & tempsrc2; -- concat the  src addresses to store in the port index value
+
+
+             	end if;
+
+          	if p2inv = '1' then
+        			MacAddr(7 downto 0)   <= p2ind;
+					MacAddr(15 downto 8)  <= MacAddr(7 downto 0);
+					MacAddr(23 downto 16) <= MacAddr(15 downto 8);
+					MacAddr(31 downto 24) <= MacAddr(23 downto 16);
+            		MacAddr( 39 downto 32) <= MacAddr(31 downto 24);
+            		MacAddr( 47 downto 40) <= MacAddr(39 downto 32);
+
+
+            		tempsrc1 <= MacAddr( 23 downto 16);
+            		tempsrc2 <= MacAddr( 31 downto 24);
+
+            			if Ram1(tempsrc1(2)) = "0" then
+            				tempRam1(2) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(2);
+                    	elsif Ram1(tempsrc1(6)) = "0" then
+            				tempRam1(6) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(6);
+                		elsif Ram1(tempsrc1(10)) = "0" then
+            				tempRam1(10) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(10);
+            			elsif Ram1(tempsrc1(14)) = "0" then
+            				tempRam1(14) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(14);
+             			else
+                        	Ram1(tempsrc1(2)) = "0" and Ram1(tempsrc1(6)) = "0" and Ram1(tempsrc1(10)) = "0" and Ram1(tempsrc1(14)) = "0" ;
+                        end if;
+                        if Ram2(tempsrc2(2)) = "0" then
+            				tempRam2(2) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(2);
+                    	elsif Ram2(tempsrc2(6)) = "0" then
+            				tempRam2(6) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(6);
+                		elsif Ram2(tempsrc2(10)) = "0" then
+            				tempRam2(10) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(10);
+            			elsif Ram1(tempsrc1(14)) = "0" then
+            				tempRam2(14) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(14);
+            			else
+            				Ram2(tempsrc2(2)) = "0" and Ram2(tempsrc2(6)) = "0" and Ram2(tempsrc2(10)) = "0" and  Ram2(tempsrc2(14)) = "0";
+             			end if;
+             			portIndex <= Ram1(tempsrc1) and Ram2(tempsrc2); -- gives port number
+                    	portRam(to_integer(unsigned(portIndex))) <= tempsrc1 & tempsrc2; -- concat the  src addresses to store in the port index value
+			end if;
+
+			if p3inv = '1' then
+        			MacAddr(7 downto 0)   <= p3ind;
+					MacAddr(15 downto 8)  <= MacAddr(7 downto 0);
+					MacAddr(23 downto 16) <= MacAddr(15 downto 8);
+					MacAddr(31 downto 24) <= MacAddr(23 downto 16);
+            		MacAddr( 39 downto 32) <= MacAddr(31 downto 24);
+            		MacAddr( 47 downto 40) <= MacAddr(39 downto 32);
+
+
+            		tempsrc1 <= MacAddr( 23 downto 16);
+            		tempsrc2 <= MacAddr( 31 downto 24);
+
+            			if Ram1(tempsrc1(3)) = "0" then
+            				tempRam1(3) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(3);
+                    	elsif Ram1(tempsrc1(7)) = "0" then
+            				tempRam1(7) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(7);
+                		elsif Ram1(tempsrc1(11)) = "0" then
+            				tempRam1(11) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(11);
+            			elsif Ram1(tempsrc1(15)) = "0" then
+            				tempRam1(15) <= "1";
+            				Ram1 (to_integer(unsigned(tempsrc1))) <= Ram1 (to_integer(unsigned(tempsrc1))) or tempRam1(15);
+             			else
+                        	Ram1(tempsrc1(3)) = "0" and Ram1(tempsrc1(7)) = "0" and Ram1(tempsrc1[11]) = "0" and  Ram1(tempsrc1(15)) = "0" ;
+                        end if;
+                        if Ram2(tempsrc2(3)) = "0" then
+            				tempRam2(3) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(3);
+                    	elsif Ram2(tempsrc2(7)) = "0" then
+            				tempRam2(7) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(7);
+                		elsif Ram2(tempsrc2(11)) = "0" then
+            				tempRam2(11) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(11);
+            			elsif Ram2(tempsrc2(15)) = "0" then
+            				tempRam2(15) <= "1";
+            				Ram2 (to_integer(unsigned(tempsrc2))) <= Ram2 (to_integer(unsigned(tempsrc2))) or tempRam2(15);
+            			else
+            				Ram2(tempsrc2(3)) = "0" and Ram2(tempsrc2(7)) = "0" and Ram2(tempsrc2(11)) = "0" and  Ram2(tempsrc2(15))= "0";
+             			end if;
+             			portIndex <= Ram1(tempsrc1) and Ram2(tempsrc2); -- gives port number
+                    	portRam(to_integer(unsigned(portIndex))) <= tempsrc1 & tempsrc2; -- concat the  src addresses to store in the port index value
+			end if;
+
+
+
+        end if;
+    end process;
+
+end Behavioral;

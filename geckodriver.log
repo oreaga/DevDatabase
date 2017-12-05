@@ -1,0 +1,25 @@
+1512491659967	geckodriver	INFO	geckodriver 0.19.1
+1512491659995	geckodriver	INFO	Listening on 127.0.0.1:45998
+1512491662026	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-profile" "/tmp/rust_mozprofile.ZMpaSnkPEpPf"
+1512491666243	Marionette	INFO	Enabled via --marionette
+1512491680916	Marionette	INFO	Listening on port 42470
+1512491681109	Marionette	WARN	TLS certificate errors will be ignored for this session
+1512491681508	Marionette	DEBUG	Register listener.js for window 2147483649
+1512491681742	Marionette	DEBUG	Received DOM event "beforeunload" for "about:blank"
+1512491682789	Marionette	DEBUG	Received DOM event "pagehide" for "about:blank"
+1512491682800	Marionette	DEBUG	Received DOM event "unload" for "about:blank"
+1512491687524	Marionette	DEBUG	Received DOM event "DOMContentLoaded" for "https://www.stitcher.com/stitcher-list/technology-podcasts-top-shows"
+1512491690636	Marionette	DEBUG	Received DOM event "pageshow" for "https://www.stitcher.com/stitcher-list/technology-podcasts-top-shows"
+1512491779343	geckodriver	INFO	geckodriver 0.19.1
+1512491779372	geckodriver	INFO	Listening on 127.0.0.1:38532
+1512491781799	mozrunner::runner	INFO	Running command: "/usr/bin/firefox" "-marionette" "-profile" "/tmp/rust_mozprofile.egpmDIMWOKDz"
+1512491786403	Marionette	INFO	Enabled via --marionette
+1512491797123	Marionette	INFO	Listening on port 34479
+1512491797311	Marionette	WARN	TLS certificate errors will be ignored for this session
+1512491797824	Marionette	DEBUG	Register listener.js for window 2147483649
+1512491797918	Marionette	DEBUG	Received DOM event "beforeunload" for "about:blank"
+1512491798960	Marionette	DEBUG	Received DOM event "pagehide" for "about:blank"
+1512491798961	Marionette	DEBUG	Received DOM event "unload" for "about:blank"
+1512491808254	Marionette	DEBUG	Received DOM event "DOMContentLoaded" for "https://www.stitcher.com/stitcher-list/technology-podcasts-top-shows"
+1512491812672	Marionette	DEBUG	Received DOM event "pageshow" for "https://www.stitcher.com/stitcher-list/technology-podcasts-top-shows"
+*** UTM:SVC TimerManager:registerTimer called after profile-before-change notification. Ignoring timer registration for id: telemetry_modules_ping
