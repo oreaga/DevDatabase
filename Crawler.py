@@ -225,6 +225,7 @@ class FileCrawler:
             inserts += build_insert(attrs, 'parenttitle') + '\n'
             for f in dirfiles:
                 print f
+                attrs['url'] = os.path.join(dirpath, f)
                 attrs['guid'] = str(uuid.uuid4())
                 attrs['format'] = f.split('.')[-1]
                 st = os.stat(os.path.join(dirpath, f))
@@ -261,7 +262,7 @@ class FileCrawler:
                 inserts += build_insert(attrs, 'childtype') + '\n'
 
         with open('local_inserts.sql', 'a+') as fl:
-            fl.write()
+            fl.write(inserts)
 
 
 
