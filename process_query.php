@@ -2,12 +2,9 @@
     require_once "Database.php";
     $db_connection = Database::getConnection();
     session_start();
-    //dagrs
     if($_POST["submit"]){
-        $selected = $_POST['media'];
-        if($selected == 0){
-            $_SESSION["error"]="No media types selected";         
-        }else{
+        if(isset($_POST['media'])){
+            $selected = $_POST['media'];
             $queries = array();
             $_SESSION["tables"] = array();
             foreach($selected as $s){
@@ -26,19 +23,31 @@
                 }
                 
             }
-            $keywords = explode(" ",$_POST["query"]);
-            $words = array();
-            
-            foreach($keywords as $key){
-                $words[]="description LIKE '%{$key}%'";
+            if($_POST['queryAttr']=="timeRange"){
+                $times = explode(" ",$_POST["query"]);
+                if($times[0] < $times[1]){
+                    $where = "dateModified >= {$times[0]} and dateModified <= {$times[1]}";
+                }else{
+                    $where = "dateModified >= {$times[1]} and dateModified <= {$times[0]}";
+                }
+                
+            }else{
+                $keywords = explode(" ",$_POST["query"]);
+                $words = array();
+                $queryAttr = $_POST['queryAttr'];
+                foreach($keywords as $key){
+                    $words[]="LOWER({$queryAttr}) LIKE LOWER('%{$key}%')";
+                }
+                $where = implode(" and ",$words);
             }
-            $where = implode(" and ",$words);
             $_SESSION["result"] = array();
+        
             for($i = 0; $i < count($queries);$i++){
                 $queries[$i].= " WHERE {$where};";
                 $_SESSION["result"][] = $db_connection->query($queries[$i]);
             }
-            
+        }else{
+             $_SESSION["error"]="No media types selected";        
         }
     }
     

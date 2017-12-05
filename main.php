@@ -1,15 +1,39 @@
 <?php
     session_start();
+    session_unset();
+    require "Database.php";
+    $db_connection=Database::getConnection();
+    $dagrsResult = $db_connection->query("SELECT title from parenttitle");
     $_SESSION["dagrs"] = array();
+    while($row = $dagrsResult->fetch_array(MYSQLI_ASSOC)){
+        $_SESSION["dagrs"][] = $row["title"];
+    }
+    //database attributes
+    $documents = array("guid","docFormat","author","dateModified","description");
+    $images = array("guid","imageWidth","imageHeight","format","author","dateModified","description");
+    $audio = array("guid","runningTime","format","author","dateModified","description");
+    $videos = array("guid","runningTime","format","author","dateModified","description");
+    $_SESSION["data"] = array("documents"=> $documents, "images"=>$images, "audio" => $audio, "videos" => $videos);
 ?>
 <html>
     <head>
-        <title>Latest Tech Updates</title>
+        <title>Multimedia Data Aggregator</title>
         <meta charset="utf-8">
         <link rel="stylesheet" type="text/css" href="mainstyle.css">
     </head>
-    <body>
-        <h1>Multimedia Data Search: Latest Tech Updates!</h1>
+    
+    
+        <h1>Multimedia Data Aggregator</h1>
+        <div id = "navBar">
+            <ul>
+                <li><a href='main.php'>Homepage</a></li>
+                <li><a href="display_folders.php">Categories</a></li>
+                <li><a href="display_duplicates.php">Find Duplicates</a></li>
+                <li><a href="add_data.php">Add Data</a></li>
+            </ul>
+        </div>
+        <body>
+        <br>
         <p><strong>Directions:</strong> Select a media to display results from.
         Enter keywords to search separated by spaces. </p>
         
@@ -20,9 +44,15 @@
             <input type = "checkbox" name = "media[]" value = "audio"/>Audio</input>
             <br/>
             <br/>
-            <strong>Query:</strong>
-            <br/>
-            <input type = "text" name = "query" style="width:400px;height:100px;"/>
+            <div>
+                <strong>Query:</strong>
+                <input id = "queryBox" type = "text" name = "query"/>
+                <select id = "attrBox" name = "queryAttr">
+                    <option value ="author">Author</option>
+                    <option value ="description">Description</option>
+                    <option value = "timeRange">Time Range</option>
+                </select>
+            </div>
             <br/>
             <br/>
             <input type ="submit" name = "submit" value = "Submit" style="font-weight: 500; font-weight:bold; width:90px;height:30px"/>
