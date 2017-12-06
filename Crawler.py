@@ -7,7 +7,7 @@ import datetime
 import re
 import sys
 import os
-import pwd
+import getpass
 
 
 def build_insert(attrs, type):
@@ -229,7 +229,7 @@ class FileCrawler:
                 attrs['guid'] = str(uuid.uuid4())
                 attrs['format'] = f.split('.')[-1]
                 st = os.stat(os.path.join(dirpath, f))
-                attrs['author'] = pwd.getpwuid(st.st_uid).pw_name
+                attrs['author'] = getpass.getuser()
                 attrs['date'] = datetime.datetime.fromtimestamp(st.st_ctime).strftime('%Y%m%d')
 
                 if attrs['format'] != '':
