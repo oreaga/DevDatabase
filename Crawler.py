@@ -24,7 +24,7 @@ def build_insert(attrs, type):
     elif type == 'parenttitle':
         insert = 'INSERT INTO ParentTitle (pid, title) VALUES ("' + attrs.get('pid', 'null') + '","' + attrs.get('title', 'null') + '");'
     elif type == 'childtype':
-        insert = 'INSERT INTO ChildType (cid, type) VALUES ("' + attrs.get('cid', 'null') + '","' + attrs.get('cid', 'null') + '");'
+        insert = 'INSERT INTO ChildType (cid, type) VALUES ("' + attrs.get('cid', 'null') + '","' + attrs.get('type', 'null') + '");'
 
     print insert
     return insert
@@ -209,7 +209,7 @@ class StitchCrawler:
 class FileCrawler:
 
     def __init__(self):
-        self.bdir = sys.argv[1]
+        self.bdir = sys.argv[2]
 
     def crawl_fs(self):
         attrs = {}
@@ -264,15 +264,66 @@ class FileCrawler:
         with open('local_inserts.sql', 'a+') as fl:
             fl.write(inserts)
 
+class HTMLCrawler:
 
+    def crawl_page(self, url, depth, guid):
+        inserts = ''
+        attrs = {}
+        if url is None:
+            return
+        text = urllib.urlopen(url).read()
+        if text is not None and '<!DOCTYPE html>' not in text and '<!DOCTYPE HTML>' not in text:
+            print 'Not a valid html file'
+            return
+        soup = BeautifulSoup(text, 'lxml')
+        if guid is None:
+            guid = str(uuid.uuid4())
+        attrs['guid'] = guid
+        attrs['pid'] = guid
+        attrs['format'] = 'html'
+        attrs['url'] = url
+        attrs['type'] = 'Document'
+        try:
+            attrs['title'] = url.split('www.')[1].split('.')[0]
+        except:
+            print url
+        title = soup.find('title')
+        if title is not None:
+            attrs['description'] = title.text
+        inserts += build_insert(attrs, 'document') + '\n'
+        if depth >= 1:
+            return
+        inserts += build_insert(attrs, 'parenttitle') + '\n'
+
+
+        for child in soup.find_all('a'):
+            link = child.get('href', None)
+
+            if link is not None:
+                if link[0] == '/' and len(link) > 1:
+                    child_url = url + link
+                elif len(link) > 1:
+                    child_url = link
+                else:
+                    child_url = None
+                attrs['cid'] = str(uuid.uuid4())
+                inserts += build_insert(attrs, 'childtype') + '\n'
+                inserts += build_insert(attrs, 'parentchild') + '\n'
+                self.crawl_page(child_url, depth + 1, attrs['cid'])
+
+        with open('html_inserts.sql', 'a+') as fl:
+            fl.write(inserts)
 
 
 if __name__ == '__main__':
-    #c = TedCrawler()
-    #c.crawl_ted_videos()
-    #c = TechCrunchCrawler()
-    #c.crawl_tech()
-    #c = StitchCrawler()
-    #c.crawl_stitch()
-    c = FileCrawler()
-    c.crawl_fs()
+    if sys.argv[1] == 'local':
+        c = FileCrawler()
+        c.crawl_fs()
+    elif sys.argv[1] == 'web':
+        c = HTMLCrawler()
+        c.crawl_page(sys.argv[2], 0, None)
+    else:
+        c = TedCrawler()
+        c.crawl_ted_videos()
+        c = TechCrunchCrawler()
+        c.crawl_tech()
