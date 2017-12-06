@@ -5,14 +5,12 @@
     if(!isset($_SESSION["dagrs"])){
         setupDagrs($db_connection);
     }
-    if(!isset($_SESSION["data"])){
      //database attributes
         $documents = array("docFormat","author","dateModified","description");
         $images = array("imageWidth","imageHeight","format","author","dateModified","description");
         $audio = array("runningTime","format","author","dateModified","description");
         $videos = array("runningTime","format","author","dateModified","description");
         $_SESSION["dupData"] = array("documents"=> $documents, "images"=>$images, "audio" => $audio, "videos" => $videos);
-    }
     $page = <<< EOBODY
         <html>
     <head>
@@ -28,7 +26,7 @@
                 <li><a href='main.php'>Homepage</a></li>
                 <li><a href="display_folders.php">Categories</a></li>
                 <li><a href="display_duplicates.php">Find Duplicates</a></li>
-                <li><a href="">Add Data</a></li>
+                <li><a href="add_data.php">Add Data</a></li>
             </ul>
         </div>
         <body>
@@ -45,7 +43,7 @@ EOBODY;
 
     $body = "";
     foreach($_SESSION["dupData"] as $table=>$attr){
-        $dupQ = "SELECT t1.* FROM {$table} t1, {$table} t2 WHERE ";
+        $dupQ = "SELECT t1.* FROM {$table} t1, {$table} t2 WHERE t1.guid!=t2.guid and ";
         $whereParts = array();
         foreach($attr as $a){
             $whereParts[]= "t1.{$a}=t2.{$a}";
@@ -55,7 +53,6 @@ EOBODY;
         $dupResult = $db_connection->query($dupQ);
         $dagrContents = array("documents"=>array(),"images"=>array(),"audio"=>array(),"videos"=>array());
         if($dupResult){
-            echo "found";
             while($d = $dupResult->fetch_array(MYSQLI_ASSOC)){
                 array_push($dagrContents[$table], $d);
             }
@@ -77,25 +74,27 @@ function setupDagrs($db_connection){
 }
 
 function printDagrContents($contents){
-        $result = "";
-        foreach($_SESSION["dupData"] as $table=>$attr){
-            $result.="<strong>{$table}</strong>";
-            if(array_key_exists($table,$contents) and count($contents[$table]) != 0){
-                $result.= "<table><tr>";
-                foreach($contents[$table] as $item){
-                    foreach($attr as $a){
-                        $result.= "<th>{$a}</th>";
-                    }
-                    $result.= "</tr><tr>";
-                    foreach($attr as $a){
-                        $result.="<td>{$item[$a]}</td>";
-                    }
-                    $result.= "</tr></table>";
+    $result = "";
+    foreach($_SESSION["data"] as $table=>$attr){
+        $result.="<strong>{$table}</strong>";
+        if(array_key_exists($table,$contents) and count($contents[$table]) != 0){
+            $result.= "<table><tr>";
+            foreach($attr as $a){
+                    $result.= "<th>{$a}</th>";
                 }
-            }else{
-                $result.="<p>No Results to Show.</p>";
+            $result.= "</tr>";
+            foreach($contents[$table] as $item){
+                $result.="<tr>";
+                foreach($attr as $a){
+                    $result.="<td>{$item[$a]}</td>";
+                }
+                $result.= "</tr>";
             }
+            $result.="</table>";
+        }else{
+            $result.="<p>No results to show.</p>";
         }
-        return $result;
     }
+    return $result;
+}
 ?>

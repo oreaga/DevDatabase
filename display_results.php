@@ -89,16 +89,17 @@ EOBODY;
                    $body.=<<< EOBODY
                         <td>
                             <form id = "addDagr" action = "add_to_dagr.php" method = "post">
-                                <select name = "dagrName" id = "dagrName">
 EOBODY;
-                    foreach($_SESSION["dagrs"] as $d){
-                        $body.="<option value = '{$d}'>{$d}</option>";
-                    }
                     $tblNms = array("Document"=>"documents","Image"=>"images","Video"=>"videos","Audio"=>"audio");
+                    if(count($_SESSION["dagrs"])>0){
+                        $body.="<select name = 'dagrName' id = 'dagrName' style='min-width: 100px;'>";
+                        foreach($_SESSION["dagrs"] as $d){
+                            $body.="<option value = '{$d}'>{$d}</option>";
+                        }
+                        $body.= "</select><input type = 'submit' name = 'addToDagr' value = 'Add'/><br>";
+                    }
                     $body.= <<< EOBODY
-                                    <option value = "CreateNew">[CreateNew]</option>
-                                </select>
-                                <button onclick = "createNewDagr()">Add</button>
+                                <button onclick = "createNewDagr()">Create New</button>
                                 <input type = "hidden" name = "addDagrName" id = "addDagrName"/>
                                 <input type = "hidden" name = "childGuid" id = "childGuid" value = "{$row['guid']}"/>
                                 <input type = "hidden" name = "childType" id = "childType" value = "{$tblNms[$_SESSION['tables'][$i]]}"/>
@@ -115,12 +116,8 @@ EOBODY;
                 
                     <script>
                         function createNewDagr(){
-                            if(document.getElementById("dagrName").value == "CreateNew"){
-                                var newName = window.prompt("DAGR Name: ", "NewDAGR");
-                                document.getElementById("addDagrName").value = newName;
-                            }else{
-                                document.getElementById("addDagrName").value = document.getElementById("dagrName").value;
-                            }
+                            var newName = window.prompt("DAGR Name: ", "NewDAGR");
+                            document.getElementById("addDagrName").value = newName;
                             document.getElementById("addDagr").submit();
                         }
                     </script>
