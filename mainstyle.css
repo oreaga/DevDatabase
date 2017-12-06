@@ -1,4 +1,8 @@
 /*CSS Stylesheet*/
+html {
+    position: relative;
+    min-height: 100%;
+}
 h1{
     text-align:center;
     vertical-align: middle;
@@ -13,10 +17,10 @@ h1{
 body {
     font-family: Helvetica, sans-serif; 
     font-size: 125%;
-    padding-left: 20px;
-    padding-right:20px;
-    padding-bottom:85px;
-    padding-top:5px;
+    margin-left: 20px;
+    margin-right:20px;
+    margin-top:5px;
+    margin-bottom:85px;
 }
 head{
     font-family: Helvetica, sans-serif; 
@@ -39,17 +43,7 @@ head{
     margin-left: 20px;
     vertical-align: top;
 }
-#footer {
-   display: block;
-   position: absolute;
-   background-color: rgb(185, 204, 234);
-   width:1260px;
-   height:85px;
-   padding-left: 20px;
-   padding-right: 15px;
-   padding-top:5px;
-   padding-bottom:5px;
-}
+
 #navBar li{
     display: inline;
     float: left;
@@ -78,13 +72,15 @@ head{
     background-color: rgb(185, 204, 234);
 }
 
-#sideBar {
-    width:90%;
+#dagrList {
+    margin-top: 0px;
+    width: 10%;
+    float:left;
 }
 #dagrList ul {
-    margin: 0;
+    left: 0;
+    top:0;
     padding: 0;
-    width: 10%;
     border:solid 1px;
     border-color:black;
     position: relative;  
@@ -114,25 +110,54 @@ td{
     width:170px;
     word-wrap:break-word;
 }
-#container {
-    vertical-align: top;
-}
+
 h2{
-    font-size: 98%;
+    font-size: 95%;
+}
+h3{
+    font-size: 85%;
 }
 #contentsList {
-    width: 85%;
-    margin-left: 150px;
-    margin-top: -95px;
-    position: relative;
+   width:85%;
+   float: left;
+   padding-left: 20px;
     
 }
 #contentsList table{
     border-collapse:collapse;
     table-layout:fixed;
+    width: auto;
+    align-content: center;
 }    
-#contentsList td{
+#contentsList table td{
     border:solid 3px;
-    width:10px;
+    align-content: center;
+    width: 140px;
     word-wrap:break-word;
+}
+#contentsList table td form input{
+    align-content: center;
+    width: 140px;
+    height: 40px;
+}
+#contentsList table td form button{
+    align-content: center;
+    width: 140px;
+    height: 40px;
+}
+.pathBox{
+    min-width: 700px;
+}
+#footer {
+   display: block;
+   position: absolute;
+   background-color: rgb(185, 204, 234);
+   width:1268px;
+   height:65px;
+   padding-left: 20px;
+   padding-right: 20px;
+   padding-bottom:5px;
+   bottom:0;
+   left:20px;
+   
 }
