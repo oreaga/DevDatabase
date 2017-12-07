@@ -26,7 +26,6 @@ def build_insert(attrs, type):
     elif type == 'childtype':
         insert = 'INSERT INTO ChildType (cid, type) VALUES ("' + attrs.get('cid', 'null') + '","' + attrs.get('type', 'null') + '");'
 
-    print insert
     return insert
 
 
@@ -127,7 +126,7 @@ class TechCrunchCrawler:
         attrs['guid'] = base_guid
         attrs['pid'] = base_guid
         attrs['title'] = 'TechCrunch Pages'
-        attrs['type'] = 'Document'
+        attrs['type'] = 'documents'
         inserts += build_insert(attrs, 'parenttitle') + '\n'
         inserts += build_insert(attrs, 'document') + '\n'
 
@@ -235,22 +234,22 @@ class FileCrawler:
                 if attrs['format'] != '':
                     attrs['cid'] = attrs['guid']
                     if attrs['format'] in doc_types:
-                        attrs['type'] = 'Document'
+                        attrs['type'] = 'documents'
                         inserts += build_insert(attrs, 'document') + '\n'
                         inserts += build_insert(attrs, 'parentchild') + '\n'
                         inserts += build_insert(attrs, 'childtype') + '\n'
                     elif attrs['format'] in image_types:
-                        attrs['type'] = 'Image'
+                        attrs['type'] = 'images'
                         inserts += build_insert(attrs, 'image') + '\n'
                         inserts += build_insert(attrs, 'parentchild') + '\n'
                         inserts += build_insert(attrs, 'childtype') + '\n'
                     elif attrs['format'] in video_types:
-                        attrs['type'] = 'Video'
+                        attrs['type'] = 'videos'
                         inserts += build_insert(attrs, 'video') + '\n'
                         inserts += build_insert(attrs, 'parentchild') + '\n'
                         inserts += build_insert(attrs, 'childtype') + '\n'
                     elif attrs['format'] in audio_types:
-                        attrs['type'] = 'Audio'
+                        attrs['type'] = 'audio'
                         inserts += build_insert(attrs, 'audio') + '\n'
                         inserts += build_insert(attrs, 'parentchild') + '\n'
                         inserts += build_insert(attrs, 'childtype') + '\n'
@@ -261,7 +260,7 @@ class FileCrawler:
                 inserts += build_insert(attrs, 'parentchild') + '\n'
                 inserts += build_insert(attrs, 'childtype') + '\n'
 
-        with open('local_inserts.sql', 'a+') as fl:
+        with open('local_inserts.sql', 'r+') as fl:
             fl.write(inserts)
 
 class HTMLCrawler:
@@ -282,7 +281,7 @@ class HTMLCrawler:
         attrs['pid'] = guid
         attrs['format'] = 'html'
         attrs['url'] = url
-        attrs['type'] = 'Document'
+        attrs['type'] = 'documents'
         try:
             attrs['title'] = url.split('www.')[1].split('.')[0]
         except:
@@ -311,7 +310,7 @@ class HTMLCrawler:
                 inserts += build_insert(attrs, 'parentchild') + '\n'
                 self.crawl_page(child_url, depth + 1, attrs['cid'])
 
-        with open('html_inserts.sql', 'a+') as fl:
+        with open('html_inserts.sql', 'r+') as fl:
             fl.write(inserts)
 
 

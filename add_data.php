@@ -1,5 +1,7 @@
 <?php
     session_start();
+    require "Database.php";
+    $db_connection = Database::getConnection();
     $page = <<< EOBODY
         <html>
     <head>
@@ -51,15 +53,12 @@ EOBODY;
             $body.="Error: No path given! Try again.";
         }else{
             $path = $_POST['dirPath'];
-            $command = escapeshellcmd("Crawler.py local ".$path);
-            echo $command;
-            $output = shell_exec($command);
-            echo $output;
-            if($output){
-                $body.= "Local directory added!";
-            }else{
-                $body.= "Error: Data could not be added.";
-            }
+            $command = escapeshellcmd("python Crawler.py local ".$path);
+            shell_exec($command);
+            $query = file_get_contents("local_inserts.sql");
+            $db_connection->multi_query($query);
+                
+            $body.= "Local directory {$path} added!";  
         }
     }
     if(isset($_POST['addHtml'])){
@@ -67,15 +66,12 @@ EOBODY;
             $body.="Error: No path given! Try again.";
         }else{
             $path = $_POST['htmlPath'];
-            $command = escapeshellcmd("Crawler.py web ".$path);
-            echo $command;
-            $output = shell_exec($command);
-            echo $output;
-            if($output){
-                $body.= "HTML Doc added!";
-            }else{
-                $body.= "Error: Data could not be added.";
-            }
+            $command = escapeshellcmd("python Crawler.py web ".$path);
+            shell_exec($command);
+            $query = file_get_contents("html_inserts.sql");
+            $res = $db_connection->multi_query($query);
+             
+            $body.= "HTML data for {$path} added!";  
         }
     }
 

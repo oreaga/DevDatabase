@@ -60,11 +60,26 @@ EOBODY;
         }else{
             $dagrTitle = $_POST['dagrTitle'];
         }
-        if(isset($_POST['newitemDesc'])&& $_POST['newitemDesc'] != ""){
-            echo $_POST['newitemDesc'];
-            $db_connection->query("UPDATE {$_POST['descItemType']} SET description='{$_POST['newitemDesc']}' WHERE
+        if(isset($_POST['updateDesc'])){
+            
+            if(isset($_POST['newDesc'])){
+                $db_connection->query("UPDATE {$_POST['descItemType']} SET description='{$_POST['newDesc']}' WHERE
                                             guid = '{$_POST['descItemGuid']}';");
-            $body.="<p>Description updated.</p>";
+                $body.="<p>Description updated.</p>";
+            }else{
+                $body.= <<< EOBODY
+                <form id = "descForm" action = "{$_SERVER['PHP_SELF']}" method = "post">
+                    <input type = "hidden" name = "descItemGuid" value = "{$_POST['descItemGuid']}"/>
+                    <input type = "hidden" name = "descItemType" value = "{$_POST['descItemType']}"/>
+                    <input type = "hidden" name = "dagrTitle" value = "{$dagrTitle}"/>
+                    <textarea id = "descBox" name = "newDesc" form = "descForm" value = "">{$_POST['currDesc']}</textarea><br>
+                    <input type = "submit" name = "updateDesc" value = "Update Description" />
+                </form>
+EOBODY;
+            }
+            
+            
+            
         }
         if(isset($_POST['removeFromCateg'])){
             removeFromCateg($db_connection,$dagrTitle);
@@ -87,19 +102,19 @@ EOBODY;
         }else{
     
             $body.="<h2> {$dagrTitle} </h2>";
-            $dagrContents = getCategory($db_connection,$dagrTitle);
-            $body.= printDagrContents($dagrContents,$dagrTitle);
             $body.= <<< EOBODY
-                
                 <form action = "{$_SERVER['PHP_SELF']}" method = "post">
                      <input type = "hidden" name = "deleteDagr" value = "{$dagrTitle}"/>
                      <input type = "submit" name = "delete" value = "Delete {$dagrTitle}"/>
                  </form>
 EOBODY;
+            $dagrContents = getCategory($db_connection,$dagrTitle);
+            $body.= printDagrContents($dagrContents,$dagrTitle);
+            
         
         }                
 
-        $body.="</div></section>";        
+        $body.="<br><br><br><br></div></section>";        
     }else{
         $body.= "</section>";
         
@@ -183,26 +198,32 @@ function printDagrContents($contents,$dagrTitle){
                 $result.="<strong>{$table}</strong>";
                 $result.= "<table><tr>";
                 foreach($attr as $a){
-                        $result.= "<th>{$a}</th>";
-                    }
-                    $result.= "<th>Organize</th>";
-                    $result.= "</tr>";
+                    $result.= "<th>{$a}</th>";
+                        
+                }
+                $result.= "<th>Organize</th>";
+                $result.= "</tr>";
+                $i = 0;
                 foreach($contents[$table] as $item){
                     $result.="<tr>";
                     foreach($attr as $a){
-                        $result.="<td>{$item[$a]}</td>";
+                        $result.="<td>{$item[$a]}";
+                        if($a == "description"){
+                            
+                        $result.= <<< EOBODY
+                        <br><br>
+                        <form action = "{$_SERVER['PHP_SELF']}" method = "post">
+                            <input type = "hidden" name = "descItemGuid" value = "{$item['guid']}"/>
+                            <input type = "hidden" name = "descItemType" value = "{$table}"/>
+                            <input type = "hidden" name = "dagrTitle" value = "{$dagrTitle}"/>
+                            <input type = "hidden" name = "currDesc" value = "{$item['description']}"/>
+                            <input type = "submit" name = "updateDesc" value = "Update Description" />
+                        </form>
+EOBODY;
+                        }
                     }
                     $result.= <<<EOBODY
                         <td>
-                        <form id = "descUpdate" action = "{$_SERVER['PHP_SELF']}" method = "post">
-                            <input type = "hidden" name = "descItemGuid" value = "{$item['guid']}"/>
-                            <input type = "hidden" name = "descItemType" value = "{$table}"/>
-                            <input type = "hidden" name = "newitemDesc" id = "newitemDesc"/>
-                            <input type = "hidden" name = "dagrTitle" value = "{$dagrTitle}"/>
-                            <button name = "updateDesc" id = 'updateDesc'/>Update Description</button>
-                        </form>
-                           
-                        <br>
                         <form action = "{$_SERVER['PHP_SELF']}" method = "post">
                             <input type = "hidden" name = "remItemGuid" value = "{$item["guid"]}"/>
                             <input type = "hidden" name = "remItemType" value = "{$table}"/>
@@ -219,8 +240,8 @@ function printDagrContents($contents,$dagrTitle){
                         </td></tr>
 EOBODY;
                 }
-                $result.="</table>";
-            }
+                $result.="</table><br>";
+          }
         }
         
        
