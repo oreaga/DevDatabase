@@ -121,6 +121,7 @@ h3{
    width:85%;
    float: left;
    padding-left: 20px;
+   padding-bottom: 200px;
     
 }
 #contentsList table{
@@ -148,6 +149,17 @@ h3{
 .pathBox{
     min-width: 700px;
 }
+span{
+    display:table-cell;
+}
+#descBox {
+    min-width: 500px;
+    min-height: 150px;
+    vertical-align:text-top;
+    word-wrap: break-word;
+    word-break: break-all;
+    
+}
 #footer {
    display: block;
    position: absolute;
@@ -160,4 +172,7 @@ h3{
    bottom:0;
    left:20px;
    
+}
+section{
+    padding-bottom:200px;
 }

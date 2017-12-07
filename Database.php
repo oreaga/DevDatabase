@@ -28,7 +28,6 @@
             self::connectDB();
             return self::$connection;
         }
-
         public static function closeDB() {
             if (self::$connected) {
                 self::$connected = false;
