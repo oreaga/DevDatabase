@@ -271,11 +271,18 @@ class HTMLCrawler:
         attrs = {}
         if url is None:
             return
-        text = urllib.urlopen(url).read()
-        if text is not None and '<!DOCTYPE html>' not in text and '<!DOCTYPE HTML>' not in text:
+        try:
+            text = urllib.urlopen(url).read()
+        except:
+            print 'Cannot read link text'
+            return
+        if text is None or ('<!doctype html>' not in text.split('\n', 1)[0].lower()):
             print 'Not a valid html file'
             return
-        soup = BeautifulSoup(text, 'lxml')
+        try:
+            soup = BeautifulSoup(text, 'lxml')
+        except:
+            print 'Unable to parse html'
         if guid is None:
             guid = str(uuid.uuid4())
         attrs['guid'] = guid
@@ -300,7 +307,7 @@ class HTMLCrawler:
             link = child.get('href', None)
 
             if link is not None:
-                if link[0] == '/' and len(link) > 1:
+                if len(link) > 1 and link[0] == '/':
                     child_url = url + link
                 elif len(link) > 1:
                     child_url = link
