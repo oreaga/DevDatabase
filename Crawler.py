@@ -81,7 +81,7 @@ class TedCrawler:
                 image_insert = build_insert(attrs, 'image')
                 inserts += image_insert + '\n'
 
-        with open('ted_inserts.sql', 'a+') as fl:
+        with open('ted_inserts.sql', 'w') as fl:
             fl.write(inserts.encode('utf8') + '\n')
 
 
@@ -151,7 +151,7 @@ class TechCrunchCrawler:
             except KeyError:
                 print 'Bad Link'
 
-        with open('techcrunch_inserts.sql', 'a+') as fl:
+        with open('techcrunch_inserts.sql', 'w') as fl:
             fl.write(inserts.encode('utf8'))
 
 
@@ -260,7 +260,7 @@ class FileCrawler:
                 inserts += build_insert(attrs, 'parentchild') + '\n'
                 inserts += build_insert(attrs, 'childtype') + '\n'
 
-        with open('local_inserts.sql', 'r+') as fl:
+        with open('local_inserts.sql', 'w') as fl:
             fl.write(inserts)
 
 class HTMLCrawler:
@@ -317,7 +317,7 @@ class HTMLCrawler:
                 inserts += build_insert(attrs, 'parentchild') + '\n'
                 self.crawl_page(child_url, depth + 1, attrs['cid'])
 
-        with open('html_inserts.sql', 'r+') as fl:
+        with open('html_inserts.sql', 'w') as fl:
             fl.write(inserts)
 
 
