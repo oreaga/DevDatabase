@@ -272,18 +272,18 @@ class FileCrawler:
 class HTMLCrawler:
 
     def crawl_page(self, url, depth, guid):
-        inserts = ''
         attrs = {}
+        inserts = ''
         if url is None:
-            return
+            return ''
         try:
             text = urllib.urlopen(url).read()
         except:
             print 'Cannot read link text'
-            return
+            return ''
         if text is None or ('<!doctype html>' not in text.split('\n', 1)[0].lower()):
             print 'Not a valid html file'
-            return
+            return ''
         try:
             soup = BeautifulSoup(text, 'lxml')
         except:
@@ -304,7 +304,7 @@ class HTMLCrawler:
             attrs['description'] = title.text
         inserts += build_insert(attrs, 'document') + '\n'
         if depth >= 1:
-            return
+            return inserts
         inserts += build_insert(attrs, 'parenttitle') + '\n'
 
 
@@ -313,7 +313,7 @@ class HTMLCrawler:
 
             if link is not None:
                 if len(link) > 1 and link[0] == '/':
-                    child_url = url + link
+                    child_url = url.strip('/') + link
                 elif len(link) > 1:
                     child_url = link
                 else:
@@ -321,10 +321,15 @@ class HTMLCrawler:
                 attrs['cid'] = str(uuid.uuid4())
                 inserts += build_insert(attrs, 'childtype') + '\n'
                 inserts += build_insert(attrs, 'parentchild') + '\n'
-                self.crawl_page(child_url, depth + 1, attrs['cid'])
+                child_inserts = self.crawl_page(child_url, depth + 1, attrs['cid'])
+                if child_inserts is not None:
+                    inserts += child_inserts
 
-        with open('html_inserts.sql', 'w') as fl:
-            fl.write(inserts)
+        if depth == 0:
+            with open('html_inserts.sql', 'w') as fl:
+                fl.write(inserts)
+
+        return inserts
 
 
 if __name__ == '__main__':
