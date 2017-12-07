@@ -58,28 +58,31 @@ class TedCrawler:
 
         # Creates inserts for videos and images on a ted page
         for outer in soup.find_all('div', class_='media media--sm-v'):
-            length = outer.find('span', class_='thumb__duration').text
-            attrs['format'] = 'mp4'
-            for div in outer.find_all('div', class_='media__message'):
-                attrs['author'] = div.find('h4', class_='h12 talk-link__speaker').text.strip()
-                attrs['description'] = div.find('h4', class_='h9 m5').text.strip()
-                attrs['date'] = self.ted_date(div.find('span', class_='meta__val').text.strip())
-                attrs['length'] = self.get_secs(length)
-                attrs['url'] = ted_url + div.find('a', class_=' ga-link')['href']
-                attrs['guid'] = str(uuid.uuid4())
-                video_insert = build_insert(attrs, 'video')
-                inserts += video_insert + '\n'
+            try:
+                length = outer.find('span', class_='thumb__duration').text
+                attrs['format'] = 'mp4'
+                for div in outer.find_all('div', class_='media__message'):
+                    attrs['author'] = div.find('h4', class_='h12 talk-link__speaker').text.strip()
+                    attrs['description'] = div.find('h4', class_='h9 m5').text.strip()
+                    attrs['date'] = self.ted_date(div.find('span', class_='meta__val').text.strip())
+                    attrs['length'] = self.get_secs(length)
+                    attrs['url'] = ted_url + div.find('a', class_=' ga-link')['href']
+                    attrs['guid'] = str(uuid.uuid4())
+                    video_insert = build_insert(attrs, 'video')
+                    inserts += video_insert + '\n'
 
-            for img in outer.find_all('img', class_='thumb__image'):
-                attrs['url'] = img['src']
-                fields = attrs['url'].split('.')
-                attrs['format'] = fields[-1].split('?')[0]
-                res = fields[-2].split('_')[1]
-                attrs['imageWidth'] = res.split('x')[0]
-                attrs['imageHeight'] = res.split('x')[1]
-                attrs['guid'] = str(uuid.uuid4())
-                image_insert = build_insert(attrs, 'image')
-                inserts += image_insert + '\n'
+                for img in outer.find_all('img', class_='thumb__image'):
+                    attrs['url'] = img['src']
+                    fields = attrs['url'].split('.')
+                    attrs['format'] = fields[-1].split('?')[0]
+                    res = fields[-2].split('_')[1]
+                    attrs['imageWidth'] = res.split('x')[0]
+                    attrs['imageHeight'] = res.split('x')[1]
+                    attrs['guid'] = str(uuid.uuid4())
+                    image_insert = build_insert(attrs, 'image')
+                    inserts += image_insert + '\n'
+            except:
+                print 'Could not process ted talk'
 
         with open('ted_inserts.sql', 'w') as fl:
             fl.write(inserts.encode('utf8') + '\n')
@@ -224,35 +227,38 @@ class FileCrawler:
             inserts += build_insert(attrs, 'parenttitle') + '\n'
             for f in dirfiles:
                 print f
-                attrs['url'] = os.path.join(dirpath, f)
-                attrs['guid'] = str(uuid.uuid4())
-                attrs['format'] = f.split('.')[-1]
-                st = os.stat(os.path.join(dirpath, f))
-                attrs['author'] = getpass.getuser()
-                attrs['date'] = datetime.datetime.fromtimestamp(st.st_ctime).strftime('%Y%m%d')
+                try:
+                    attrs['url'] = os.path.join(dirpath, f)
+                    attrs['guid'] = str(uuid.uuid4())
+                    attrs['format'] = f.split('.')[-1]
+                    st = os.stat(os.path.join(dirpath, f))
+                    attrs['author'] = getpass.getuser()
+                    attrs['date'] = datetime.datetime.fromtimestamp(st.st_ctime).strftime('%Y%m%d')
 
-                if attrs['format'] != '':
-                    attrs['cid'] = attrs['guid']
-                    if attrs['format'] in doc_types:
-                        attrs['type'] = 'documents'
-                        inserts += build_insert(attrs, 'document') + '\n'
-                        inserts += build_insert(attrs, 'parentchild') + '\n'
-                        inserts += build_insert(attrs, 'childtype') + '\n'
-                    elif attrs['format'] in image_types:
-                        attrs['type'] = 'images'
-                        inserts += build_insert(attrs, 'image') + '\n'
-                        inserts += build_insert(attrs, 'parentchild') + '\n'
-                        inserts += build_insert(attrs, 'childtype') + '\n'
-                    elif attrs['format'] in video_types:
-                        attrs['type'] = 'videos'
-                        inserts += build_insert(attrs, 'video') + '\n'
-                        inserts += build_insert(attrs, 'parentchild') + '\n'
-                        inserts += build_insert(attrs, 'childtype') + '\n'
-                    elif attrs['format'] in audio_types:
-                        attrs['type'] = 'audio'
-                        inserts += build_insert(attrs, 'audio') + '\n'
-                        inserts += build_insert(attrs, 'parentchild') + '\n'
-                        inserts += build_insert(attrs, 'childtype') + '\n'
+                    if attrs['format'] != '':
+                        attrs['cid'] = attrs['guid']
+                        if attrs['format'] in doc_types:
+                            attrs['type'] = 'documents'
+                            inserts += build_insert(attrs, 'document') + '\n'
+                            inserts += build_insert(attrs, 'parentchild') + '\n'
+                            inserts += build_insert(attrs, 'childtype') + '\n'
+                        elif attrs['format'] in image_types:
+                            attrs['type'] = 'images'
+                            inserts += build_insert(attrs, 'image') + '\n'
+                            inserts += build_insert(attrs, 'parentchild') + '\n'
+                            inserts += build_insert(attrs, 'childtype') + '\n'
+                        elif attrs['format'] in video_types:
+                            attrs['type'] = 'videos'
+                            inserts += build_insert(attrs, 'video') + '\n'
+                            inserts += build_insert(attrs, 'parentchild') + '\n'
+                            inserts += build_insert(attrs, 'childtype') + '\n'
+                        elif attrs['format'] in audio_types:
+                            attrs['type'] = 'audio'
+                            inserts += build_insert(attrs, 'audio') + '\n'
+                            inserts += build_insert(attrs, 'parentchild') + '\n'
+                            inserts += build_insert(attrs, 'childtype') + '\n'
+                except:
+                    print 'Could not analyze file ' + f + ' in directory ' + str(dirpath)
 
             for d in dirnames:
                 attrs['cid'] = str(uuid.uuid4())
