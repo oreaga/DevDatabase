@@ -9,6 +9,7 @@ import sys
 import os
 import getpass
 import threading
+import time
 
 
 def build_insert(attrs, type):
@@ -27,7 +28,6 @@ def build_insert(attrs, type):
     elif type == 'childtype':
         insert = 'INSERT INTO ChildType (cid, type) VALUES ("' + attrs.get('cid', 'null') + '","' + attrs.get('type', 'null') + '");'
 
-    print insert
     return insert
 
 
@@ -362,7 +362,7 @@ class HTMLCrawler:
             print e.message
             print 'Cannot read link text'
             return ''
-        if text is None or ('<!doctype html>' not in text.lower()):
+        if text is None or ('<!doctype html' not in text.lower()):
             print 'Not a valid html file'
             return ''
         try:
@@ -390,8 +390,12 @@ class HTMLCrawler:
         if title is not None:
             attrs['description'] = title.text
         self.lock.acquire()
+        print 'Writing child insert'
         with open('html_inserts.sql', 'a+') as fl:
-            fl.write((build_insert(attrs, 'document') + '\n').encode('utf8'))
+            try:
+                fl.write((build_insert(attrs, 'document') + '\n').encode('utf8'))
+            except:
+                print 'Encoding error'
         self.lock.release()
         if depth >= 1:
             return inserts
@@ -410,17 +414,19 @@ class HTMLCrawler:
                 attrs['cid'] = str(uuid.uuid4())
                 inserts += build_insert(attrs, 'childtype') + '\n'
                 inserts += build_insert(attrs, 'parentchild') + '\n'
-                try:
-                    t = threading.Thread(target=self.crawl_page, args=(child_url, depth + 1, attrs['cid']))
-                    t.start()
-                    self.threads.append(t)
-                except:
-                    print 'Problem starting thread'
+                if child_url is not None and 'youtube' not in child_url:
+                    try:
+                        t = threading.Thread(target=self.crawl_page, args=(child_url, depth + 1, attrs['cid']))
+                        t.start()
+                        self.threads.append(t)
+                    except:
+                        print 'Problem starting thread'
 
         if depth == 0:
             for thr in self.threads:
                 thr.join()
             self.lock.acquire()
+            print 'Writing inserts to file' + '\n'
             with open('html_inserts.sql', 'a+') as fl:
                 fl.write(inserts.encode('utf-8'))
             self.lock.release()
