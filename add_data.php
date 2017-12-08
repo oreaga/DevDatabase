@@ -54,11 +54,15 @@ EOBODY;
         }else{
             $path = $_POST['dirPath'];
             $command = escapeshellcmd("python Crawler.py local ".$path);
-            shell_exec($command);
-            $query = file_get_contents("local_inserts.sql");
-            $db_connection->multi_query($query);
-                
-            $body.= "Local directory {$path} added!";  
+            $output = shell_exec($command);
+            if($output){
+                $query = file_get_contents("local_inserts.sql");
+                $db_connection->multi_query($query);
+                    
+                $body.= "Local directory {$path} added!";
+            }else{
+                $body.= "Error: Data could not be added.";
+            }
         }
     }
     if(isset($_POST['addHtml'])){
@@ -67,11 +71,15 @@ EOBODY;
         }else{
             $path = $_POST['htmlPath'];
             $command = escapeshellcmd("python Crawler.py web ".$path);
-            shell_exec($command);
-            $query = file_get_contents("html_inserts.sql");
-            $res = $db_connection->multi_query($query);
-             
-            $body.= "HTML data for {$path} added!";  
+            $output = shell_exec($command);
+            if($output){
+                $query = file_get_contents("html_inserts.sql");
+                $db_connection->multi_query($query);
+                    
+                $body.= "Html data {$path} added!";
+            }else{
+                $body.= "Error: Data could not be added.";
+            }
         }
     }
 

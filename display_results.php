@@ -92,7 +92,7 @@ EOBODY;
 EOBODY;
                     $tblNms = array("Document"=>"documents","Image"=>"images","Video"=>"videos","Audio"=>"audio");
                     if(count($_SESSION["dagrs"])>0){
-                        $body.="<select name = 'dagrName' id = 'dagrName' style='min-width: 100px;'>";
+                        $body.="<select name = 'dagrName' id = 'dagrName' style='min-width: 100px; max-width:140px;'>";
                         foreach($_SESSION["dagrs"] as $d){
                             $body.="<option value = '{$d}'>{$d}</option>";
                         }
