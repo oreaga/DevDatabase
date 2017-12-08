@@ -226,12 +226,12 @@ class FileCrawler:
             attrs['url'] = dirpath
             fields = dirpath.split('/')
             if dirpath[-1] == '/':
-                attrs['title'] = dirpath.split('/')[-2]
+                attrs['title'] = fields[-2]
             else:
-                attrs['title'] = dirpath.split('/')[-1]
+                attrs['title'] = fields[-1]
             attrs['description'] = attrs['title']
             if attrs.get(attrs['title'] + '_cid', None) is not None:
-                attrs['pid'] = attrs['cid']
+                attrs['pid'] = attrs[attrs['title'] + '_cid']
             else:
                 attrs['pid'] = str(uuid.uuid4())
             inserts += build_insert(attrs, 'parenttitle') + '\n'
@@ -273,6 +273,7 @@ class FileCrawler:
 
             for d in dirnames:
                 attrs[d + '_cid'] = str(uuid.uuid4())
+                attrs['cid'] = attrs[d + '_cid']
                 attrs['type'] = 'Directory'
                 inserts += build_insert(attrs, 'parentchild') + '\n'
                 inserts += build_insert(attrs, 'childtype') + '\n'
@@ -405,6 +406,7 @@ class HTMLCrawler:
                 inserts += build_insert(attrs, 'parentchild') + '\n'
                 try:
                     t = threading.Thread(target=self.crawl_page, args=(child_url, depth + 1, attrs['cid']))
+                    t.start()
                     self.threads.append(t)
                 except:
                     print 'Problem starting thread'
@@ -412,8 +414,10 @@ class HTMLCrawler:
         if depth == 0:
             for thr in self.threads:
                 thr.join()
-            with open('html_inserts.sql', 'w') as fl:
+            self.lock.acquire()
+            with open('html_inserts.sql', 'a+') as fl:
                 fl.write(inserts.encode('utf-8'))
+            self.lock.release()
 
         return inserts
 
