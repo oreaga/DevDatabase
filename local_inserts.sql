@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 INSERT INTO ParentTitle (pid, title) VALUES ("ac0ab955-1aaf-43dd-a332-5c6419629608","testdir");
 INSERT INTO Images (guid, imageWidth, imageHeight, format, author, dateModified, description, url) VALUES ("29b5e537-4889-4213-b1b3-63252bd1942c",null,null,"png","Sahana",20171206,"null","./testdir\hello.png");
 INSERT INTO ParentChild (pid, cid) VALUES ("ac0ab955-1aaf-43dd-a332-5c6419629608","29b5e537-4889-4213-b1b3-63252bd1942c");
@@ -31,6 +32,8 @@ INSERT INTO Documents (guid, docFormat, author, dateModified, description, url) 
 INSERT INTO ParentChild (pid, cid) VALUES ("01d6b951-a131-4b70-a0e9-c8590f7b4d36","1943ae0f-0f20-432e-b5b7-6e37ecdce165");
 INSERT INTO ChildType (cid, type) VALUES ("1943ae0f-0f20-432e-b5b7-6e37ecdce165","documents");
 =======
+=======
+>>>>>>> e4b48bea91f7a2e97c76fd2ce18e148109799795
 INSERT INTO ParentTitle (pid, title) VALUES ("c8fa1ac5-cd14-4e69-aab7-2158a8ee4895","testdir");
 INSERT INTO Documents (guid, docFormat, author, dateModified, description, url) VALUES ("351961a9-dc01-47da-8a4f-0fe0b98ccc53","txt","doreagan",20171205,"hello.txt","testdir/hello.txt");
 INSERT INTO ParentChild (pid, cid) VALUES ("c8fa1ac5-cd14-4e69-aab7-2158a8ee4895","351961a9-dc01-47da-8a4f-0fe0b98ccc53");
@@ -62,4 +65,7 @@ INSERT INTO ChildType (cid, type) VALUES ("72a19698-4086-4c95-ab7d-384456aa7364"
 INSERT INTO Documents (guid, docFormat, author, dateModified, description, url) VALUES ("beb869f1-98f9-4e9e-8d31-edef20e9ded3","doc","doreagan",20171205,"hello2.doc","testdir/test2/hello2.doc");
 INSERT INTO ParentChild (pid, cid) VALUES ("6073a2bb-82d4-4969-8552-18e1f4b37bee","beb869f1-98f9-4e9e-8d31-edef20e9ded3");
 INSERT INTO ChildType (cid, type) VALUES ("beb869f1-98f9-4e9e-8d31-edef20e9ded3","documents");
+<<<<<<< HEAD
+>>>>>>> e4b48bea91f7a2e97c76fd2ce18e148109799795
+=======
 >>>>>>> e4b48bea91f7a2e97c76fd2ce18e148109799795
