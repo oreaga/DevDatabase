@@ -1,13 +1,14 @@
 #!/usr/bin/python
 
 from bs4 import BeautifulSoup
-import urllib
+import urllib2
 import uuid
 import datetime
 import re
 import sys
 import os
 import getpass
+import threading
 
 
 def build_insert(attrs, type):
@@ -26,6 +27,7 @@ def build_insert(attrs, type):
     elif type == 'childtype':
         insert = 'INSERT INTO ChildType (cid, type) VALUES ("' + attrs.get('cid', 'null') + '","' + attrs.get('type', 'null') + '");'
 
+    print insert
     return insert
 
 
@@ -50,7 +52,7 @@ class TedCrawler:
             return fields[1] + months[fields[0]] + '01'
 
     def crawl_ted_page(self, url):
-        html = urllib.urlopen(url).read()
+        html = urllib2.urlopen(url).read()
         soup = BeautifulSoup(html, 'lxml')
         attrs = {}
         ted_url = 'https://www.ted.com'
@@ -91,7 +93,7 @@ class TedCrawler:
 
 
     def get_ted_num_pages(self, url):
-        text = urllib.urlopen(url).read()
+        text = urllib2.urlopen(url).read()
         soup = BeautifulSoup(text, 'lxml')
         page_nums = []
 
@@ -114,7 +116,7 @@ class TechCrunchCrawler:
         self.base_url = 'https://techcrunch.com/'
 
     def crawl_tech(self):
-        text = urllib.urlopen(self.base_url).read()
+        text = urllib2.urlopen(self.base_url).read()
         soup = BeautifulSoup(text, 'lxml')
         attrs = {}
         inserts = ''
@@ -138,7 +140,7 @@ class TechCrunchCrawler:
                 url = link['href']
                 fields = url.split('/')
                 if 'techcrunch.com' in url and re.match('\d{4}', fields[3]):
-                    text = urllib.urlopen(url).read()
+                    text = urllib2.urlopen(url).read()
                     soup1 = BeautifulSoup(text, 'lxml')
                     attrs['url'] = url
                     attrs['date'] = fields[3] + fields[4] + fields[5]
@@ -222,8 +224,16 @@ class FileCrawler:
         audio_types = ['mp3', 'aiff', 'wma', 'dat', 'wav']
         for (dirpath, dirnames, dirfiles) in os.walk(self.bdir):
             attrs['url'] = dirpath
-            attrs['pid'] = str(uuid.uuid4())
-            attrs['title'] = dirpath.split('/')[-1]
+            fields = dirpath.split('/')
+            if dirpath[-1] == '/':
+                attrs['title'] = dirpath.split('/')[-2]
+            else:
+                attrs['title'] = dirpath.split('/')[-1]
+            attrs['description'] = attrs['title']
+            if attrs.get(attrs['title'] + '_cid', None) is not None:
+                attrs['pid'] = attrs['cid']
+            else:
+                attrs['pid'] = str(uuid.uuid4())
             inserts += build_insert(attrs, 'parenttitle') + '\n'
             for f in dirfiles:
                 print f
@@ -231,6 +241,7 @@ class FileCrawler:
                     attrs['url'] = os.path.join(dirpath, f)
                     attrs['guid'] = str(uuid.uuid4())
                     attrs['format'] = f.split('.')[-1]
+                    attrs['description'] = f
                     st = os.stat(os.path.join(dirpath, f))
                     attrs['author'] = getpass.getuser()
                     attrs['date'] = datetime.datetime.fromtimestamp(st.st_ctime).strftime('%Y%m%d')
@@ -261,7 +272,7 @@ class FileCrawler:
                     print 'Could not analyze file ' + f + ' in directory ' + str(dirpath)
 
             for d in dirnames:
-                attrs['cid'] = str(uuid.uuid4())
+                attrs[d + '_cid'] = str(uuid.uuid4())
                 attrs['type'] = 'Directory'
                 inserts += build_insert(attrs, 'parentchild') + '\n'
                 inserts += build_insert(attrs, 'childtype') + '\n'
@@ -269,6 +280,7 @@ class FileCrawler:
         with open('local_inserts.sql', 'w') as fl:
             fl.write(inserts)
 
+"""
 class HTMLCrawler:
 
     def crawl_page(self, url, depth, guid):
@@ -277,11 +289,11 @@ class HTMLCrawler:
         if url is None:
             return ''
         try:
-            text = urllib.urlopen(url).read()
+            text = urllib2.urlopen(url).read()
         except:
             print 'Cannot read link text'
             return ''
-        if text is None or ('<!doctype html>' not in text.split('\n', 1)[0].lower()):
+        if text is None or ('<!doctype html>' not in text.lower()):
             print 'Not a valid html file'
             return ''
         try:
@@ -296,7 +308,7 @@ class HTMLCrawler:
         attrs['url'] = url
         attrs['type'] = 'documents'
         try:
-            attrs['title'] = url.split('www.')[1].split('.')[0]
+            attrs['title'] = url.split('/')[2]
         except:
             print url
         title = soup.find('title')
@@ -306,7 +318,6 @@ class HTMLCrawler:
         if depth >= 1:
             return inserts
         inserts += build_insert(attrs, 'parenttitle') + '\n'
-
 
         for child in soup.find_all('a'):
             link = child.get('href', None)
@@ -328,6 +339,81 @@ class HTMLCrawler:
         if depth == 0:
             with open('html_inserts.sql', 'w') as fl:
                 fl.write(inserts)
+
+        return inserts
+"""
+
+
+class HTMLCrawler:
+
+    def __init__(self):
+        self.lock = threading.Lock()
+        self.threads = []
+
+    def crawl_page(self, url, depth, guid):
+        attrs = {}
+        inserts = ''
+        if url is None:
+            return ''
+        try:
+            text = urllib2.urlopen(url).read()
+        except Exception as e:
+            print e.message
+            print 'Cannot read link text'
+            return ''
+        if text is None or ('<!doctype html>' not in text.lower()):
+            print 'Not a valid html file'
+            return ''
+        try:
+            soup = BeautifulSoup(text, 'lxml')
+        except:
+            print 'Unable to parse html'
+        if guid is None:
+            guid = str(uuid.uuid4())
+        attrs['guid'] = guid
+        attrs['pid'] = guid
+        attrs['format'] = 'html'
+        attrs['url'] = url
+        attrs['type'] = 'documents'
+        try:
+            attrs['title'] = url.split('/')[2]
+        except:
+            print url
+        title = soup.find('title')
+        if title is not None:
+            attrs['description'] = title.text
+        self.lock.acquire()
+        with open('html_inserts.sql', 'a+') as fl:
+            fl.write((build_insert(attrs, 'document') + '\n').encode('utf8'))
+        self.lock.release()
+        if depth >= 1:
+            return inserts
+        inserts += build_insert(attrs, 'parenttitle') + '\n'
+
+        for child in soup.find_all('a'):
+            link = child.get('href', None)
+
+            if link is not None:
+                if len(link) > 1 and link[0] == '/':
+                    child_url = url.strip('/') + link
+                elif len(link) > 1:
+                    child_url = link
+                else:
+                    child_url = None
+                attrs['cid'] = str(uuid.uuid4())
+                inserts += build_insert(attrs, 'childtype') + '\n'
+                inserts += build_insert(attrs, 'parentchild') + '\n'
+                try:
+                    t = threading.Thread(target=self.crawl_page, args=(child_url, depth + 1, attrs['cid']))
+                    self.threads.append(t)
+                except:
+                    print 'Problem starting thread'
+
+        if depth == 0:
+            for thr in self.threads:
+                thr.join()
+            with open('html_inserts.sql', 'w') as fl:
+                fl.write(inserts.encode('utf-8'))
 
         return inserts
 

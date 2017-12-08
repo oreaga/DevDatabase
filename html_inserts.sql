@@ -1,0 +1,1 @@
+INSERT INTO Documents (guid, docFormat, author, dateModified, description, url) VALUES ("c9912d60-5538-4a51-abfa-424a9a0ab8ee","html","null",null,"Sword Buyers Guide Home","https://sword-buyers-guide.com");
