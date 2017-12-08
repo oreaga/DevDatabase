@@ -224,8 +224,8 @@ class FileCrawler:
         audio_types = ['mp3', 'aiff', 'wma', 'dat', 'wav']
         for (dirpath, dirnames, dirfiles) in os.walk(self.bdir):
             attrs['url'] = dirpath
-            fields = dirpath.split('/')
-            if dirpath[-1] == '/':
+            fields = dirpath.split(os.sep)
+            if dirpath[-1] == os.sep:
                 attrs['title'] = fields[-2]
             else:
                 attrs['title'] = fields[-1]
