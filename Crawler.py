@@ -376,10 +376,16 @@ class HTMLCrawler:
         attrs['format'] = 'html'
         attrs['url'] = url
         attrs['type'] = 'documents'
-        try:
-            attrs['title'] = url.split('/')[2]
-        except:
-            print url
+        if 'http' in url:
+            try:
+                attrs['title'] = url.split('/')[2]
+            except:
+                print url
+        else:
+            try:
+                attrs['title'] = url.split('/')[0]
+            except:
+                print url
         title = soup.find('title')
         if title is not None:
             attrs['description'] = title.text
@@ -427,6 +433,8 @@ if __name__ == '__main__':
         c = FileCrawler()
         c.crawl_fs()
     elif sys.argv[1] == 'web':
+        f = open('html_inserts.sql', 'w')
+        f.close()
         c = HTMLCrawler()
         c.crawl_page(sys.argv[2], 0, None)
     else:
