@@ -158,7 +158,7 @@ function getChildren($db,$result){
         $children[]=$row["cid"];
         $res = $db->query("SELECT cid FROM parentchild WHERE pid = '{$row['cid']}';");
         if($res && $res->num_rows > 0){
-            return array_push($children,getChildren($db,$res));
+            return array_merge($children,getChildren($db,$res));
         }
     }
     return $children;
@@ -185,7 +185,6 @@ function getCategory($db_connection, $dagrTitle){
         $type = $tResult->fetch_row()[0];
         if($type != "Directory"){
             $getItemQ = "SELECT * FROM {$type} WHERE guid = '{$cid}';";
-            echo $getItemQ;
             $res = $db_connection->query($getItemQ);
             while($d = $res->fetch_array(MYSQLI_ASSOC)){
                 array_push($dagrContents[$type], $d);
